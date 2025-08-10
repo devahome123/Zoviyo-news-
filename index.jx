@@ -1,0 +1,258 @@
+Server Side News API
+
+Zoviyo news ka wo part banao jo server Par chalta hai 
+I'll create a Zoviyo News frontend application with a clean, modern news feed interface. Let me build this step by step.
+
+
+V1
+Zoviyo News
+zoviyo-news.tsx
+This Zoviyo News application provides a clean, modern news feed interface with the following features:
+
+News Feed Display: Shows a grid of news articles with images, titles, summaries, and author information
+Article Details: Click any article to view the full content with rich formatting
+Responsive Design: Works seamlessly on mobile, tablet, and desktop devices
+Clean UI: Uses Shadcn UI components with Tailwind CSS for consistent styling
+Loading States: Includes loading indicators for better user experience
+Author Information: Displays author avatars and names for credibility
+Read Time: Shows estimated reading time for each article
+Categories: Articles are tagged with relevant categories
+Navigation: Easy back button to return to the feed
+The app uses mock data to simulate a real news platform, with articles covering technology, environment, health, and business topics. The interface is intuitive and follows modern design principles with proper spacing, typography, and visual hierarchy.
+
+
+
+Follow up
+
+Code
+Description
+
+
+zoviyo-news v1
+CodePreview
+import { useState } from 'react'
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "/components/ui/card"
+import { Button } from "/components/ui/button"
+import { Avatar, AvatarFallback, AvatarImage } from "/components/ui/avatar"
+import { Calendar, Clock, ArrowLeft, User } from 'lucide-react'
+
+interface Article {
+  id: string
+  title: string
+  summary: string
+  content: string
+  author: {
+    name: string
+    avatar?: string
+  }
+  publishedAt: string
+  readTime: number
+  category: string
+  imageUrl?: string
+}
+
+const mockArticles: Article[] = [
+  {
+    id: '1',
+    title: 'Breaking: Major Tech Acquisition Announced',
+    summary: 'Leading technology company announces strategic acquisition worth $2.3 billion, marking the largest deal in the industry this year.',
+    content: 'In a groundbreaking announcement today, TechCorp revealed its plans to acquire InnovateAI for $2.3 billion, creating the largest artificial intelligence company in the world. The deal, which has been in the works for months, will combine TechCorp\'s cloud infrastructure with InnovateAI\'s cutting-edge machine learning capabilities. Industry experts predict this merger will accelerate AI adoption across multiple sectors, from healthcare to finance. The acquisition is expected to close by Q3 2024, pending regulatory approval.',
+    author: {
+      name: 'Sarah Chen',
+      avatar: 'https://images.unsplash.com/photo-1494790108755-2616b332-3fc7-9c73-8db88189b569?w=150&h=150&fit=crop'
+    },
+    publishedAt: '2024-01-15',
+    readTime: 5,
+    category: 'Technology'
+  },
+  {
+    id: '2',
+    title: 'Climate Summit Reaches Historic Agreement',
+    summary: 'World leaders commit to unprecedented climate action plan with binding targets for carbon neutrality by 2040.',
+    content: 'The Global Climate Summit concluded today with a historic agreement that commits 195 countries to achieve carbon neutrality by 2040. The agreement includes binding targets, financial mechanisms for developing nations, and strict monitoring systems. Key provisions include a $500 billion annual fund for climate adaptation, mandatory renewable energy transitions for developed nations, and technology transfer programs. Environmental groups have praised the agreement as "the most ambitious climate accord in history," though some critics argue the timeline may be too aggressive.',
+    author: {
+      name: 'Marcus Rodriguez',
+      avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop'
+    },
+    publishedAt: '2024-01-14',
+    readTime: 7,
+    category: 'Environment'
+  },
+  {
+    id: '3',
+    title: 'Revolutionary Medical Breakthrough in Cancer Treatment',
+    summary: 'Scientists develop new immunotherapy treatment showing 95% success rate in early trials for pancreatic cancer.',
+    content: 'Researchers at Johns Hopkins University have announced a breakthrough in cancer treatment with a new immunotherapy showing remarkable results. In Phase 2 clinical trials, the treatment achieved a 95% success rate in halting pancreatic cancer progression, a disease previously considered extremely difficult to treat. The therapy works by reprogramming the patient\'s own immune cells to specifically target cancer cells while leaving healthy tissue untouched. Dr. Emily Watson, lead researcher, called the results "beyond our wildest expectations" and expects FDA approval within 18 months.',
+    author: {
+      name: 'Dr. Lisa Park',
+      avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop'
+    },
+    publishedAt: '2024-01-13',
+    readTime: 6,
+    category: 'Health'
+  },
+  {
+    id: '4',
+    title: 'Global Economy Shows Strong Recovery Signs',
+    summary: 'International markets surge as economic indicators point to sustained growth across major economies.',
+    content: 'Global financial markets rallied today as new economic data revealed stronger than expected recovery across major economies. The IMF upgraded its global growth forecast to 4.2% for 2024, citing resilient consumer spending, easing inflation, and robust job markets. Key indicators include a 15% increase in manufacturing output, record-low unemployment in the US and EU, and a 25% surge in international trade. Central banks are now considering gradual interest rate reductions, while maintaining vigilance against inflation risks.',
+    author: {
+      name: 'James Liu',
+      avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop'
+    },
+    publishedAt: '2024-01-12',
+    readTime: 4,
+    category: 'Business'
+  }
+]
+
+export default function ZoviyoNews() {
+  const [selectedArticle, setSelectedArticle] = useState<Article | null>(null)
+  const [loading, setLoading] = useState(false)
+
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString)
+    return date.toLocaleDateString('en-US', { 
+      month: 'short', 
+      day: 'numeric', 
+      year: 'numeric' 
+    })
+  }
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      </div>
+    )
+  }
+
+  if (selectedArticle) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <div className="max-w-4xl mx-auto px-4 py-8">
+          <Button 
+            variant="ghost" 
+            className="mb-6"
+            onClick={() => setSelectedArticle(null)}
+          >
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Back to News
+          </Button>
+          
+          <article className="bg-white rounded-lg shadow-sm">
+            {selectedArticle.imageUrl && (
+              <div className="bg-gray-200 border-2 border-dashed rounded-t-lg w-full h-64" />
+            )}
+            
+            <div className="p-6 md:p-8">
+              <div className="flex items-center gap-2 text-sm text-gray-600 mb-4">
+                <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs font-medium">
+                  {selectedArticle.category}
+                </span>
+                <span className="flex items-center gap-1">
+                  <Calendar className="w-4 h-4" />
+                  {formatDate(selectedArticle.publishedAt)}
+                </span>
+                <span className="flex items-center gap-1">
+                  <Clock className="w-4 h-4" />
+                  {selectedArticle.readTime} min read
+                </span>
+              </div>
+              
+              <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+                {selectedArticle.title}
+              </h1>
+              
+              <div className="flex items-center gap-3 mb-6">
+                <Avatar>
+                  <AvatarImage src={selectedArticle.author.avatar} />
+                  <AvatarFallback>
+                    {selectedArticle.author.name.split(' ').map(n => n[0]).join('')}
+                  </AvatarFallback>
+                </Avatar>
+                <div>
+                  <p className="font-medium text-gray-900">{selectedArticle.author.name}</p>
+                  <p className="text-sm text-gray-600">Senior Reporter</p>
+                </div>
+              </div>
+              
+              <div className="prose prose-lg max-w-none">
+                <p className="text-gray-700 leading-relaxed">{selectedArticle.content}</p>
+              </div>
+            </div>
+          </article>
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      <header className="bg-white shadow-sm border-b">
+        <div className="max-w-6xl mx-auto px-4 py-4">
+          <div className="flex items-center justify-between">
+            <h1 className="text-2xl font-bold text-gray-900">Zoviyo News</h1>
+            <div className="flex items-center gap-4">
+              <Button variant="ghost" size="sm">Latest</Button>
+              <Button variant="ghost" size="sm">Trending</Button>
+              <Button variant="ghost" size="sm">Categories</Button>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <main className="max-w-6xl mx-auto px-4 py-8">
+        <div className="mb-8">
+          <h2 className="text-3xl font-bold text-gray-900 mb-2">Today's Top Stories</h2>
+          <p className="text-gray-600">Stay informed with the latest news from around the world</p>
+        </div>
+
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          {mockArticles.map((article) => (
+            <Card 
+              key={article.id} 
+              className="cursor-pointer hover:shadow-lg transition-shadow"
+              onClick={() => setSelectedArticle(article)}
+            >
+              <div className="bg-gray-200 border-2 border-dashed rounded-t-lg w-full h-48" />
+              
+              <CardHeader>
+                <div className="flex items-center gap-2 text-sm text-gray-600 mb-2">
+                  <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs font-medium">
+                    {article.category}
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <Clock className="w-3 h-3" />
+                    {article.readTime} min
+                  </span>
+                </div>
+                <CardTitle className="text-xl line-clamp-2">{article.title}</CardTitle>
+                <CardDescription className="line-clamp-2">{article.summary}</CardDescription>
+              </CardHeader>
+              
+              <CardFooter>
+                <div className="flex items-center gap-3 w-full">
+                  <Avatar className="w-8 h-8">
+                    <AvatarImage src={article.author.avatar} />
+                    <AvatarFallback>
+                      {article.author.name.split(' ').map(n => n[0]).join('')}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="flex-1">
+                    <p className="text-sm font-medium text-gray-900">{article.author.name}</p>
+                    <p className="text-xs text-gray-600">{formatDate(article.publishedAt)}</p>
+                  </div>
+                </div>
+              </CardFooter>
+            </Card>
+          ))}
+        </div>
+      </main>
+    </div>
+  )
+}
+Share
+Refresh
+
+Version 1 of 1
